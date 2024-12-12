@@ -16,7 +16,7 @@ const Submit = () => {
       <div className="submit-title">
         <h1>MORGAN'S MOVIE TIME</h1>
       </div>
-      
+
       <div className="content-box">
         <h1>YOU GUESSED IT RIGHT! </h1>
         <div className="movie-info">
