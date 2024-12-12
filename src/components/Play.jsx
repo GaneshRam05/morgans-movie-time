@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 import "./play.css";
 
-// Initialize Supabase client (use environment variables for security in production)
+// Initialize Supabase client
 const supabase = createClient(
   "https://chffpfbfjhodtjzfnjwb.supabase.co", // Supabase URL
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZmZwZmJmamhvZHRqemZuandiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NjkyMzIsImV4cCI6MjA0ODM0NTIzMn0.yO_3VD3n16FobNgd8VdDzUUEWuk89Hj0WJ-hWiI73Yk" // Replace this with a secure way to load your API key (e.g., environment variables)
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZmZwZmJmamhvZHRqemZuandiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NjkyMzIsImV4cCI6MjA0ODM0NTIzMn0.yO_3VD3n16FobNgd8VdDzUUEWuk89Hj0WJ-hWiI73Yk" // Replace this with your actual API key
 );
 
 const Play = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [userData, setUserData] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentMovie, setCurrentMovie] = useState("");
@@ -19,64 +20,60 @@ const Play = () => {
   const [chances, setChances] = useState(3);
   const [alertVisible, setAlertVisible] = useState(false);
   const [isSearchDisabled, setIsSearchDisabled] = useState(false);
-  const [userData, setUserData] = useState([]); // State to store fetched movie data
   const navigate = useNavigate();
 
-  // Fetch movie data from Supabase
+  // Fetch data from Supabase when the search term changes
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await supabase
-        .from("movies") // Your table name in Supabase
-        .select("*");
+      if (searchTerm) {
+        const { data, error } = await supabase
+          .from("movies")
+          .select("*")
+          .ilike("movie_name", `%${searchTerm}%`);
 
-      if (error) {
-        console.error("Error fetching data:", error);
+        if (error) {
+          console.error("Error fetching data:", error);
+        } else {
+          setSuggestions(data);
+        }
       } else {
-        setUserData(data); // Set the fetched data to userData state
+        setSuggestions([]);
       }
     };
-
     fetchData();
-  }, []);
+  }, [searchTerm]);
 
   const handleSearch = (event) => {
     const value = event.target.value.trim().toLowerCase();
     setSearchTerm(value);
-
-    if (value) {
-      const matches = userData.filter((movie) =>
-        movie.movie_name.toLowerCase().startsWith(value)
-      );
-      setSuggestions(matches);
-    } else {
-      setSuggestions([]);
-    }
   };
 
   const handleSelectMovie = (movie) => {
-    setFilteredData([{
-      actor_name: movie.actor_name.charAt(0),
-      actress_name: movie.actress_name.charAt(0),
-      movie_name: movie.movie_name.charAt(0),
-      song: "", // Initially empty when a movie is selected
-    }]);
+    setFilteredData([
+      {
+        actor_name: movie.actor_name,      // Store the full actor name
+        actress_name: movie.actress_name,  // Store the full actress name
+        movie_name: movie.movie_name,      // Store the full movie name
+        song: "",
+      },
+    ]);
     setCurrentMovie(movie.movie_name.toLowerCase());
-    setSongSuggestions(movie.songs); // Set song suggestions (using 'songs' instead of 'song')
+    setSongSuggestions(movie.songs || []);
     setSuggestions([]);
     setSearchTerm("");
     setIsSearchDisabled(true);
   };
 
   const handleSongSelect = (song) => {
-    setSelectedSong(song); // Store full song name for later use
+    setSelectedSong(song);
     setFilteredData((prevData) => [
-      { ...prevData[0], song: song.charAt(0) }, // Only the first letter for the grid
+      { ...prevData[0], song: song },
     ]);
-    setSongSuggestions([]); // Hide song suggestions after selection
+    setSongSuggestions([]);
   };
 
   const handleAnswerCheck = () => {
-    if (currentMovie === "") {
+    if (!currentMovie) {
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 3000);
       return;
@@ -84,29 +81,30 @@ const Play = () => {
 
     const answer = document.getElementById("answerInput").value.trim().toLowerCase();
     if (answer === currentMovie) {
-      const matchedMovie = userData.find(
-        (movie) => movie.movie_name.toLowerCase() === currentMovie
+      // Store the correct guessed movie in localStorage
+      localStorage.setItem(
+        "guessedMovie",
+        JSON.stringify({
+          movie_name: currentMovie,
+          actor_name: filteredData[0]?.actor_name,
+          actress_name: filteredData[0]?.actress_name,
+          selectedSong,
+        })
       );
-      if (matchedMovie) {
-        localStorage.setItem(
-          "guessedMovie",
-          JSON.stringify({ ...matchedMovie, selectedSong })
-        );
-      }
       navigate("/submit");
     } else {
       setChances((prev) => {
         const newChances = prev - 1;
         if (newChances === 0) {
-          const matchedMovie = userData.find(
-            (movie) => movie.movie_name.toLowerCase() === currentMovie
+          localStorage.setItem(
+            "guessedMovie",
+            JSON.stringify({
+              movie_name: currentMovie,
+              actor_name: filteredData[0]?.actor_name,
+              actress_name: filteredData[0]?.actress_name,
+              selectedSong,
+            })
           );
-          if (matchedMovie) {
-            localStorage.setItem(
-              "guessedMovie",
-              JSON.stringify({ ...matchedMovie, selectedSong })
-            );
-          }
           navigate("/reveal");
         }
         return newChances;
@@ -115,20 +113,21 @@ const Play = () => {
   };
 
   const handleReveal = () => {
-    if (currentMovie === "") {
+    if (!currentMovie) {
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 3000);
       return;
     }
-    const matchedMovie = userData.find(
-      (movie) => movie.movie_name.toLowerCase() === currentMovie
+
+    localStorage.setItem(
+      "guessedMovie",
+      JSON.stringify({
+        movie_name: currentMovie,
+        actor_name: filteredData[0]?.actor_name,
+        actress_name: filteredData[0]?.actress_name,
+        selectedSong,
+      })
     );
-    if (matchedMovie) {
-      localStorage.setItem(
-        "guessedMovie",
-        JSON.stringify({ ...matchedMovie, selectedSong })
-      );
-    }
     navigate("/reveal");
   };
 
@@ -139,8 +138,7 @@ const Play = () => {
         <h1>MORGAN'S MOVIE TIME</h1>
       </div>
       <div className="search">
-        <div className="search-wrapper" id="searchBoxContainer">
-          <div className="search-icon"></div>
+        <div className="search-wrapper">
           <input
             type="text"
             id="searchBox"
@@ -175,7 +173,7 @@ const Play = () => {
           <input
             type="text"
             placeholder="Hero"
-            value={filteredData[0]?.actor_name || ""}
+            value={filteredData[0]?.actor_name?.charAt(0) || ""} // Display first letter only
             readOnly
           />
         </div>
@@ -183,7 +181,7 @@ const Play = () => {
           <input
             type="text"
             placeholder="Heroine"
-            value={filteredData[0]?.actress_name || ""}
+            value={filteredData[0]?.actress_name?.charAt(0) || ""} // Display first letter only
             readOnly
           />
         </div>
@@ -191,7 +189,7 @@ const Play = () => {
           <input
             type="text"
             placeholder="Movie"
-            value={filteredData[0]?.movie_name || ""}
+            value={filteredData[0]?.movie_name?.charAt(0) || ""} // Display first letter only
             readOnly
           />
         </div>
@@ -199,7 +197,7 @@ const Play = () => {
           <input
             type="text"
             placeholder="Song"
-            value={filteredData[0]?.song || ""}
+            value={filteredData[0]?.song?.charAt(0) || ""} // Display first letter only
             readOnly
           />
         </div>
@@ -233,9 +231,7 @@ const Play = () => {
           REVEAL
         </button>
       </div>
-      <div className="chances" id="chancesDisplay">
-        Chances Left: {chances}
-      </div>
+      <div className="chances">Chances Left: {chances}</div>
     </>
   );
 };
