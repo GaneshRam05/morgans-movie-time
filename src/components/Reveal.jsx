@@ -16,7 +16,7 @@ const Reveal = () => {
       <div className="reveal-title">
         <h1>MORGAN'S MOVIE TIME</h1>
       </div>
-      
+
       <div className="content-box">
         <h1>THE CORRECT ANSWER</h1>
         <div className="movie-info">
