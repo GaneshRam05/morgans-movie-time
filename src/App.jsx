@@ -8,7 +8,7 @@ import Info from './components/Info';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/morgans-movie-time">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/play" element={<Play />} />
