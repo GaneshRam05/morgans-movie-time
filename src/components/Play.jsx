@@ -6,7 +6,7 @@ import "./play.css";
 // Initialize Supabase client (use environment variables for security in production)
 const supabase = createClient(
   "https://chffpfbfjhodtjzfnjwb.supabase.co", // Supabase URL
-  "YOUR_SUPABASE_API_KEY" // Replace this with a secure way to load your API key (e.g., environment variables)
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZmZwZmJmamhvZHRqemZuandiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NjkyMzIsImV4cCI6MjA0ODM0NTIzMn0.yO_3VD3n16FobNgd8VdDzUUEWuk89Hj0WJ-hWiI73Yk" // Replace this with a secure way to load your API key (e.g., environment variables)
 );
 
 const Play = () => {
