@@ -5,8 +5,8 @@ import "./play.css";
 
 // Initialize Supabase client
 const supabase = createClient(
-  "https://chffpfbfjhodtjzfnjwb.supabase.co", // Supabase URL
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZmZwZmJmamhvZHRqemZuandiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NjkyMzIsImV4cCI6MjA0ODM0NTIzMn0.yO_3VD3n16FobNgd8VdDzUUEWuk89Hj0WJ-hWiI73Yk" // Replace this with your actual API key
+  "https://dsaqpdcjururrndrznaw.supabase.co", // Supabase URL
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYXFwZGNqdXJ1cnJuZHJ6bmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NDc4ODIsImV4cCI6MjA2NjUyMzg4Mn0.OrCZMnYa36EPZI6GEJEirIHW_9tE6jIBTE9QC2bbpNs" // Replace this with your actual API key
 );
 
 const Play = () => {
