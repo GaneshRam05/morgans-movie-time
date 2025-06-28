@@ -181,7 +181,7 @@ const Play = () => {
           <input
             type="text"
             placeholder="Heroine"
-            value={filteredData[0]?.actress_name?.charAt(0) || ""} // Display first letter only
+            value={filteredData[0]?.actress_name?.trim().charAt(0) || ""} // Display first letter only
             readOnly
           />
         </div>
